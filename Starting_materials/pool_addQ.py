@@ -207,6 +207,62 @@ class SNPsPool(np.ndarray):  #np.ndarray: An array object represents a multidime
             return pools_
             # return just for being able to print the list if wished
 
+    """
+    Example of what pools_list() method does:
+    In[2]: oo = SNPsPool()
+    Out[2]:
+    
+    In[3]: oo
+    Out[3]: 
+    SNPsPool([['', '', '', ''],
+              ['', '', '', ''],
+              ['', '', '', ''],
+              ['', '', '', '']], dtype='<U8')
+    
+    In[4]: exid = list(['id' + str(i) for i in range(16)])
+    Out[4]:
+    
+    In[5]: exid
+    Out[5]: 
+    ['id0',
+     'id1',
+     'id2',
+     'id3',
+     'id4',
+     'id5',
+     'id6',
+     'id7',
+     'id8',
+     'id9',
+     'id10',
+     'id11',
+     'id12',
+     'id13',
+     'id14',
+     'id15']
+     
+    In[6]: oo.set_subset(exid)
+    Out[6]: 
+    SNPsPool([['id0', 'id1', 'id2', 'id3'],
+              ['id4', 'id5', 'id6', 'id7'],
+              ['id8', 'id9', 'id10', 'id11'],
+              ['id12', 'id13', 'id14', 'id15']], dtype='<U8')
+              
+    In[7]: oo.pools_list()
+    Out[7]: 
+    [SNPsPool(['id0', 'id1', 'id2', 'id3'], dtype='<U8'),
+     SNPsPool(['id4', 'id5', 'id6', 'id7'], dtype='<U8'),
+     SNPsPool(['id8', 'id9', 'id10', 'id11'], dtype='<U8'),
+     SNPsPool(['id12', 'id13', 'id14', 'id15'], dtype='<U8'),
+     SNPsPool(['id0', 'id4', 'id8', 'id12'], dtype='<U8'),
+     SNPsPool(['id1', 'id5', 'id9', 'id13'], dtype='<U8'),
+     SNPsPool(['id2', 'id6', 'id10', 'id14'], dtype='<U8'),
+     SNPsPool(['id3', 'id7', 'id11', 'id15'], dtype='<U8')]
+     
+     So, this just to get a view over what samples each pool contains. 
+     It is necessary though to initialize a subset with samples names before visualizing the samples' split
+    """
+
     def set_line_values(self, samples: list, variant: Variant,
                         sig: object = None,
                         params: List[float] = [], interp: object = None) -> None:
@@ -237,6 +293,9 @@ class SNPsPool(np.ndarray):  #np.ndarray: An array object represents a multidime
         """
         subs = self.get_subset()
         idx = np.argwhere(np.isin(self.samples, subs)) #index of self.samples which is in subs
+        # yes: here you access the genotypes of the samples being part of the pooling matrix 4*4
+        # access by location: genotypes we want have the same position in the Variant line than
+        # the samples in the header line
         self.__setattr__('call', np.asarray(self.variant)[idx])
         return self.call
 
@@ -252,6 +311,65 @@ class SNPsPool(np.ndarray):  #np.ndarray: An array object represents a multidime
 # [[[1 2 3]         # [[[1 2]           # [[ 3  9 15]]    
 #   [4 5 6]         #   [4 5]
 #   [7 8 9]]]       #   [7 8]]] #axis=-1 means to do sum within [1 2] / [4 5] / [7 8]
+
+        # call has shape (16, 3) since 16 samples take part of the pooling matrix,
+        # and a genotype has the form [allele1, allele2, phase]
+        # Ex.
+        # [[[0 0 1]
+        #   [0 0 1]
+        #   [0 1 1]
+        #   [0 0 1]
+        #   [0 0 1]
+        #   [0 0 1]
+        #   [0 1 1]
+        #   [0 0 1]
+        #   [0 0 1]
+        #   [0 1 1]
+        #   [1 0 1]
+        #   [1 0 1]
+        #   [0 0 1]
+        #   [0 1 1]
+        #   [1 1 1]
+        #   [1 0 1]]]
+
+        # arr=call[:, :, :-1] looks like 16 * [allele1, allele2]
+        # Ex.
+        # [[[0 0]
+        #   [0 0]
+        #   [0 1]
+        #   [0 0]
+        #   [0 0]
+        #   [0 0]
+        #   [0 1]
+        #   [0 0]
+        #   [0 0]
+        #   [0 1]
+        #   [1 0]
+        #   [1 0]
+        #   [0 0]
+        #   [0 1]
+        #   [1 1]
+        #   [1 0]]]
+
+        # score looks like: 16 * [allele1 + allele2], so shape (16, 1)
+        # note that allele1 + allele2 takes value in {0, 1, 2}
+        # Ex.
+        #  [[0]
+        #   [0]
+        #   [1]
+        #   [0]
+        #   [0]
+        #   [0]
+        #   [1]
+        #   [0]
+        #   [0]
+        #   [1]
+        #   [1]
+        #   [1]
+        #   [0]
+        #   [1]
+        #   [2]
+        #   [1]]
 
         if np.isin(call, -1).any(): #if there is -1 in call?
             x = np.ones((1, self.pools_nb, 1)) #3D:(1, 8, 1)
@@ -275,6 +393,11 @@ class SNPsPool(np.ndarray):  #np.ndarray: An array object represents a multidime
         if np.all(a == 0):  # RR * RR * RR * RR
             gt = [0, 0, 0]
         elif np.all(a == self.pools_nb):  # AA * AA * AA * AA
+            # a has shape (1, 1, 3): this comes from broadcasting
+            # if all samples in a pool have a genotype score of 2, then the broadcasted pooled_gt looks like [8 8 8]
+            # 8 = pools_nb
+            # I need [8 8 8] and not just [8] because
+            # I can replace [8 8 8] by [1 1 0], but not [8] by [1 1 0] (shape conflict in NumPy)
             gt = [1, 1, 0]
         else:
             gt = [1, 0, 0]
