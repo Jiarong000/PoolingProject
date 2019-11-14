@@ -13,6 +13,7 @@ from scipy.stats import bernoulli as bn
 
 
 pools_nb=8 # maxium to be pools_size*2
+# Yes, but only because we want every sample being part of 2 pools (design constraint)
 pools_size=4
 size=(pools_size*pools_size)
 shape: tuple = (pools_size, pools_size)
