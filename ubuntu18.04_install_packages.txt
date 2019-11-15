@@ -16,7 +16,7 @@ sudo apt-get install libcurl4-nss-dev
 sudo apt-get install libcurl4-openssl-dev
 sudo apt-get install libffi-dev
 pip3 install numpy Cython
-pip3 install pandas scipy typing scripts
+pip3 install pandas scipy typing
 
 #vcftools
 git clone https://github.com/vcftools/vcftools.git
