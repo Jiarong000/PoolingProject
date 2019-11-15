@@ -15,7 +15,8 @@ sudo apt-get install libcurl4-gnutls-dev
 sudo apt-get install libcurl4-nss-dev
 sudo apt-get install libcurl4-openssl-dev
 sudo apt-get install libffi-dev
-pip install numpy Cython
+pip3 install numpy Cython
+pip3 install pandas scipy typing scripts
 
 #vcftools
 git clone https://github.com/vcftools/vcftools.git
@@ -51,7 +52,7 @@ sudo make install
 
 
 
-#cyvcf2 -- if 'pip install cyvcf2' doesn't work
+#cyvcf2 -- if 'pip3 install cyvcf2' doesn't work
 git clone --recursive https://github.com/brentp/cyvcf2
 cd cyvcf2/htslib
 autoheader
@@ -59,7 +60,7 @@ autoconf
 ./configure --enable-libcurl
 make
 cd ..
-pip install -e .
+pip3 install -e .
 
 
 
