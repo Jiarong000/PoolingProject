@@ -3,20 +3,17 @@ sudo apt-get install g++
 sudo apt-get install perl
 sudo apt-get install make
 sudo apt-get install git
-sudo apt-get install automake
 sudo apt-get install zlib1g-dev
 sudo apt install python3-pip
-sudo apt install python-pip
 sudo apt-get install libbz2-dev
 sudo apt-get install liblzma-dev
 sudo apt-get install libpq-dev libxml2-dev libxslt1-dev libldap2-dev libsasl2-dev
-sudo apt-get install build-essential autoconf libtool pkg-config python-opengl python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt4-xml libqt4-test libqt4-script libqt4-network libqt4-dbus python-qt4 python-qt4-gl libgle3 python-dev libssl-dev
+sudo apt-get -y install build-essential autoconf libtool pkg-config python-opengl python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt4-xml libqt4-test libqt4-script libqt4-network libqt4-dbus python-qt4 python-qt4-gl libgle3 python-dev libssl-dev
 sudo apt-get install libcurl4-gnutls-dev
-sudo apt-get install libcurl4-nss-dev
-sudo apt-get install libcurl4-openssl-dev
+sudo apt-get -y install libcurl4-nss-dev
+sudo apt-get -y install libcurl4-openssl-dev
 sudo apt-get install libffi-dev
-pip3 install numpy Cython
-pip3 install pandas scipy typing
+pip3 install numpy Cython pandas scipy typing cyvcf2
 
 #vcftools
 git clone https://github.com/vcftools/vcftools.git
